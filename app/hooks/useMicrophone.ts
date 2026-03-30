@@ -13,7 +13,7 @@ interface UseMicrophoneReturn {
 }
 
 const VOLUME_THRESHOLD = 15;
-const BLOW_CONFIRMATION_TIME = 150;
+const BLOW_CONFIRMATION_TIME = 75;
 const EXTINGUISH_THRESHOLD = 0.6;
 const EXTINGUISH_DURATION = 400;
 
