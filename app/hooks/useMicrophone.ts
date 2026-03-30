@@ -15,11 +15,9 @@ interface UseMicrophoneReturn {
 const VOLUME_THRESHOLD = 15;
 const BLOW_CONFIRMATION_TIME = 150;
 const EXTINGUISH_THRESHOLD = 0.6;
-const EXTINGUISH_DURATION = 800;
+const EXTINGUISH_DURATION = 400;
 
-export function useMicrophone(
-  onExtinguish?: () => void
-): UseMicrophoneReturn {
+export function useMicrophone(onExtinguish?: () => void): UseMicrophoneReturn {
   const [isListening, setIsListening] = useState(false);
   const [isBlowing, setIsBlowing] = useState(false);
   const [blowIntensity, setBlowIntensity] = useState(0);
@@ -82,7 +80,7 @@ export function useMicrophone(
 
       const audioContext = new AudioContext();
       const analyser = audioContext.createAnalyser();
-      
+
       analyser.fftSize = 512;
       analyser.smoothingTimeConstant = 0.3;
 
@@ -100,7 +98,7 @@ export function useMicrophone(
         const analyzer = analyserRef.current;
         const bufferLength = analyzer.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
-        
+
         analyzer.getByteFrequencyData(dataArray);
 
         const lowFreqEnd = Math.floor(bufferLength * 0.15);
@@ -116,11 +114,20 @@ export function useMicrophone(
         }
         const overallAverage = totalSum / bufferLength;
 
-        const rawIntensity = Math.min(1, Math.max(0, (overallAverage - VOLUME_THRESHOLD) / (100 - VOLUME_THRESHOLD)));
-        
+        const rawIntensity = Math.min(
+          1,
+          Math.max(
+            0,
+            (overallAverage - VOLUME_THRESHOLD) / (100 - VOLUME_THRESHOLD),
+          ),
+        );
+
         const now = Date.now();
 
-        if (lowFreqAverage > VOLUME_THRESHOLD && overallAverage > VOLUME_THRESHOLD * 0.8) {
+        if (
+          lowFreqAverage > VOLUME_THRESHOLD &&
+          overallAverage > VOLUME_THRESHOLD * 0.8
+        ) {
           if (!blowStartTimeRef.current) {
             blowStartTimeRef.current = now;
           }
@@ -132,7 +139,10 @@ export function useMicrophone(
             if (rawIntensity > EXTINGUISH_THRESHOLD) {
               if (!sustainedBlowStartRef.current) {
                 sustainedBlowStartRef.current = now;
-              } else if (now - sustainedBlowStartRef.current > EXTINGUISH_DURATION) {
+              } else if (
+                now - sustainedBlowStartRef.current >
+                EXTINGUISH_DURATION
+              ) {
                 hasExtinguishedRef.current = true;
                 setIsBlowing(false);
                 setBlowIntensity(0);
@@ -158,9 +168,13 @@ export function useMicrophone(
       setHasPermission(false);
       if (err instanceof Error) {
         if (err.name === "NotAllowedError") {
-          setError("Microphone access denied. Please allow microphone access to blow out the candle!");
+          setError(
+            "Microphone access denied. Please allow microphone access to blow out the candle!",
+          );
         } else if (err.name === "NotFoundError") {
-          setError("No microphone found. Please connect a microphone to blow out the candle!");
+          setError(
+            "No microphone found. Please connect a microphone to blow out the candle!",
+          );
         } else {
           setError(`Microphone error: ${err.message}`);
         }
