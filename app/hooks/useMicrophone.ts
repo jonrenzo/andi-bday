@@ -12,7 +12,7 @@ interface UseMicrophoneReturn {
   stopListening: () => void;
 }
 
-const VOLUME_THRESHOLD = 35;
+const VOLUME_THRESHOLD = 15;
 const BLOW_CONFIRMATION_TIME = 150;
 const EXTINGUISH_THRESHOLD = 0.6;
 const EXTINGUISH_DURATION = 800;
